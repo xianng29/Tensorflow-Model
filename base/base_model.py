@@ -42,3 +42,11 @@ class BaseModel:
 
     def build_model(self):
         raise NotImplementedError
+
+    def get_weight_variable(self, shape, name='weights'):
+        initializer = tf.random_normal_initializer(mean=0., stddev=0.5, )
+        return tf.get_variable(shape=shape, initializer=initializer, name=name)
+
+    def get_bias_variable(self, shape, name='biases'):
+        initializer = tf.constant_initializer(0.1)
+        return tf.get_variable(name=name, shape=shape, initializer=initializer)
