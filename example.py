@@ -1,6 +1,6 @@
 import tensorflow as tf
 
-from data_loader.data_generator import DataGenerator
+from data_loader.data_generator import ReadTFRecords
 from models.example_model import ExampleModel
 from models.cnn_model import CNNModel
 from trainers.example_trainer import ExampleTrainer
@@ -11,7 +11,7 @@ from utils.logger import Logger
 from utils.utils import get_args
 import os
 
-os.environ['CUDA_VISIBLE_DEVICES'] = '-1'
+os.environ['CUDA_VISIBLE_DEVICES'] = '0'
 
 def main():
     # capture the config path from the run arguments
@@ -31,7 +31,7 @@ def main():
     
     sess = tf.Session()
     # create your data generator
-    data = DataGenerator(config)
+    data = ReadTFRecords(config)
     # create tensorboard logger
     logger = Logger(sess, config)
 
