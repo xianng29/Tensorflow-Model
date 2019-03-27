@@ -1,0 +1,18 @@
+{
+    "exp_name": "CNN",
+    "num_epochs": 10,
+    "num_iter_per_epoch": 100,
+    "learning_rate": 0.001,
+    "batch_size": 16,
+    "max_to_keep": 5,
+    "input_shape": [50,62,1],
+    "number_class": 4,
+    "strides": 2,
+    "padding": "SAME",
+    "filter_1": [4,4,1,32],
+    "filter_2": [4,4,32,64],
+    "fc_bias": 1024,
+    "dropout": 0.5,
+    "split":"train",
+    "data_dir":"/home/xianng/Documents/Xiaotian/data"
+  }

@@ -6,7 +6,6 @@ import numpy as np
 class CNNModel(BaseModel):
     def __init__(self, config):
         super(CNNModel, self).__init__(config)
-
         self.build_model()
         self.init_saver()
 
@@ -15,8 +14,8 @@ class CNNModel(BaseModel):
 
         self.is_training = tf.placeholder(tf.bool)
         
-        self.x = tf.placeholder(tf.float32, shape=[None]+self.config.input_shape)
-        self.y = tf.placeholder(tf.float32, shape=[None]+[self.config.number_class])
+        self.x = tf.placeholder(tf.float32, shape=[self.config.batch_size]+self.config.input_shape)
+        self.y = tf.placeholder(tf.float32, shape=[self.config.batch_size]+[self.config.number_class])
 
         strides = [1,self.config.strides,self.config.strides,1]
         padding = self.config.padding

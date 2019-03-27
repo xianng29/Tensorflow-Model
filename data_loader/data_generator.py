@@ -32,7 +32,7 @@ class ReadTFRecords:
         self.isTrain = config.split == 'train'
         root_path = self.config.data_dir
 
-        file_name = os.path.join(root_path, self.config.split,'.tfrecords')
+        file_name = os.path.join(root_path, self.config.split+'.tfrecords')
         valid_path = os.path.join(root_path,'valid.tfrecords')
         with tf.name_scope('input'):
             dataset = tf.data.TFRecordDataset(file_name)
@@ -61,15 +61,21 @@ class ReadTFRecords:
 
     def decode_CNN(self,example):
         features = {
-            "image": tf.FixedLenFeature((), tf.string),
-            "label": tf.FixedLenFeature((), tf.int16)
+            "de_image": tf.FixedLenFeature((), tf.string),
+            "psd_image": tf.FixedLenFeature((), tf.string),
+            "sub_id": tf.FixedLenFeature((), tf.string),
+            "label": tf.FixedLenFeature([], tf.string)
         }
         parsed_example = tf.parse_single_example(example, features)
-        images = tf.cast(tf.image.decode_jpeg(parsed_example["image"]), dtype=tf.float32)
-        images.set_shape(self.config.input_shape)
-        labels = tf.decode_raw(parsed_example['label'], tf.int16)
+        de_images = tf.cast(tf.image.decode_jpeg(parsed_example["de_image"]), dtype=tf.float32)
+        de_images.set_shape(self.config.input_shape)
+        psd_image = tf.cast(tf.image.decode_jpeg(parsed_example["psd_image"]), dtype=tf.float32)
+        psd_image.set_shape(self.config.input_shape)
 
-        return images, labels 
+        labels = tf.decode_raw(parsed_example['label'], tf.uint8)
+
+
+        return de_images, labels 
     def decode_DRML(self, example):
         features = {
             "image": tf.FixedLenFeature((), tf.string),
