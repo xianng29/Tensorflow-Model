@@ -44,10 +44,16 @@ class ReadTFRecords:
             dataset = dataset.map(self._extract_features)
             dataset = dataset.apply(tf.contrib.data.batch_and_drop_remainder(self.config.batch_size))
             self.dataset = dataset
-        self.iterator = dataset.make_one_shot_iterator()
+        self.handle = tf.placeholder(tf.string, shape=[])
+        iterator = tf.data.Iterator.from_string_handle(self.handle, dataset.output_types, dataset.output_shapes)
+        self.next_images, self.next_lables = iterator.get_next()
+        self.dataset_iterator = dataset.make_one_shot_iterator()
+
+
+    
     def next_batch(self, batch_size):   
-        next_images, next_lables = self.iterator.get_next()
-        return next_images, next_lables
+        #next_images, next_lables = self.iterator.get_next()
+        return self.next_images, self.next_lables
         
     
     
@@ -60,22 +66,29 @@ class ReadTFRecords:
             return None
 
     def decode_CNN(self,example):
-        features = {
-            "de_image": tf.FixedLenFeature((), tf.string),
-            "psd_image": tf.FixedLenFeature((), tf.string),
-            "sub_id": tf.FixedLenFeature((), tf.string),
-            "label": tf.FixedLenFeature([], tf.string)
-        }
-        parsed_example = tf.parse_single_example(example, features)
-        de_images = tf.cast(tf.image.decode_jpeg(parsed_example["de_image"]), dtype=tf.float32)
-        de_images.set_shape(self.config.input_shape)
-        psd_image = tf.cast(tf.image.decode_jpeg(parsed_example["psd_image"]), dtype=tf.float32)
-        psd_image.set_shape(self.config.input_shape)
+        features = tf.parse_single_example(
+            example,# Defaults are not specified since both keys are required.
+            features={
+                "de_image": tf.FixedLenFeature((), tf.string),
+                "psd_image": tf.FixedLenFeature((), tf.string),
+                "sub_id": tf.FixedLenFeature((), tf.string),
+                "label": tf.FixedLenFeature([], tf.string)
+        })
 
-        labels = tf.decode_raw(parsed_example['label'], tf.uint8)
+        de_image = tf.decode_raw(features['de_image'], tf.uint8)
+        psd_image = tf.decode_raw(features['psd_image'], tf.uint8)
+        label = tf.decode_raw(features['label'], tf.uint8)
 
+        tensor_shape = tf.stack([50, 62, 1])
 
-        return de_images, labels 
+        de_image = tf.reshape(de_image, tensor_shape)
+        psd_image = tf.reshape(psd_image, tensor_shape)
+
+        de_image = tf.cast(de_image,dtype=tf.float32)
+        psd_image = tf.cast(psd_image,dtype=tf.float32)
+
+        return de_image, label
+
     def decode_DRML(self, example):
         features = {
             "image": tf.FixedLenFeature((), tf.string),

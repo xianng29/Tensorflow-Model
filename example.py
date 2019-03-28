@@ -48,7 +48,7 @@ def main():
         create_model = ExampleModel
         create_trainer = ExampleTrainer
 
-    model = create_model(config)
+    model = create_model(config,data)
     trainer = create_trainer(sess, model, data, config, logger)
 
     

@@ -7,6 +7,9 @@ class CNNTrainer(BaseTrain):
     def __init__(self, sess, model, data, config,logger):
         super(CNNTrainer, self).__init__(sess, model, data, config,logger)
 
+        self.training_handle = self.sess.run(self.data.dataset_iterator.string_handle())
+
+
     def train_epoch(self):
         loop = tqdm(range(self.config.num_iter_per_epoch))
         losses = []
@@ -28,10 +31,12 @@ class CNNTrainer(BaseTrain):
         self.model.save(self.sess)
 
     def train_step(self):
-        batch_x, batch_y = self.data.next_batch(self.config.batch_size)
-        #h = tf.get_session_handle(batch_x,batch_y)
 
-        feed_dict = {self.model.x: batch_x, self.model.y: batch_y, self.model.is_training: True}
+        # batch_x, batch_y = self.data.next_batch(self.config.batch_size)
+        # self.model.build_model(batch_x,batch_y)
+        #h = tf.get_session_handle(batch_x,batch_y)
+        #self.model.x:batch_x,self.model.y:batch_y,
+        feed_dict = {self.data.handle:self.training_handle}
         _, loss, acc = self.sess.run([self.model.train_step, self.model.cross_entropy, self.model.accuracy],
                                      feed_dict=feed_dict)
         return loss, acc
