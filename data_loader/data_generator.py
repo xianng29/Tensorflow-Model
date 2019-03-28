@@ -42,18 +42,14 @@ class ReadTFRecords:
                     dataset = dataset.concatenate(dataset2)
                 dataset = dataset.shuffle(10000 + 3 * self.config.batch_size)
             dataset = dataset.map(self._extract_features)
+            dataset = dataset.map(self.normalize)
             dataset = dataset.apply(tf.contrib.data.batch_and_drop_remainder(self.config.batch_size))
             self.dataset = dataset
         self.handle = tf.placeholder(tf.string, shape=[])
-        iterator = tf.data.Iterator.from_string_handle(self.handle, dataset.output_types, dataset.output_shapes)
-        self.next_images, self.next_lables = iterator.get_next()
+        self.iterator = tf.data.Iterator.from_string_handle(self.handle, dataset.output_types, dataset.output_shapes)   
         self.dataset_iterator = dataset.make_one_shot_iterator()
+        self.next_batch = self.iterator.get_next()
 
-
-    
-    def next_batch(self, batch_size):   
-        #next_images, next_lables = self.iterator.get_next()
-        return self.next_images, self.next_lables
         
     
     
@@ -100,6 +96,10 @@ class ReadTFRecords:
         masks = tf.cast(tf.image.decode_jpeg(parsed_example["mask"]), dtype=tf.float32) / 255.
         masks.set_shape([800, 600, 1])
         return images, masks
+
+    def normalize(self, texture, label):
+
+        return tf.image.per_image_standardization(texture), label
 
 
         

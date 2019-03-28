@@ -6,16 +6,15 @@ import numpy as np
 class CNNModel(BaseModel):
     def __init__(self, config, data):
         super(CNNModel, self).__init__(config)
-        self.build_model(data.next_images,data.next_lables)
+        self.build_model(data)
         self.init_saver()
 
-    def build_model(self,input_X,input_Y):
+    def build_model(self,data):
         # here you build the tensorflow graph of any model you want and also define the loss.
         
         # self.x = tf.placeholder(tf.float32, shape=[self.config.batch_size]+self.config.input_shape)
         # self.y = tf.placeholder(tf.float32, shape=[self.config.batch_size]+[self.config.number_class])
-        self.x = input_X
-        self.y = input_Y
+        self.x ,self.y = data.next_batch
 
         strides = [1,self.config.strides,self.config.strides,1]
         padding = self.config.padding

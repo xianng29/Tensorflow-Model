@@ -1,8 +1,9 @@
 {
     "exp_name": "CNN",
-    "num_epochs": 10,
+    "summary_name":"CNN_v2",
+    "num_epochs": 20,
     "num_iter_per_epoch": 100,
-    "learning_rate": 0.001,
+    "learning_rate": 0.1,
     "batch_size": 16,
     "max_to_keep": 5,
     "input_shape": [50,62,1],
@@ -13,6 +14,6 @@
     "filter_2": [4,4,32,64],
     "fc_bias": 1024,
     "dropout": 0.5,
-    "split":"train",
-    "data_dir":"/media/xianng/TOSHIBA/dataset/EEG/SEED/50_62_y-normal"
+    "split":"test",
+    "data_dir":"/home/xianng/Documents/Xiaotian/data_v2"
   }

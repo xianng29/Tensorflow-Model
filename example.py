@@ -51,12 +51,19 @@ def main():
     model = create_model(config,data)
     trainer = create_trainer(sess, model, data, config, logger)
 
-    
+    if config.split == 'train':
+        trainer.train()
+    elif config.split == 'test':
+        trainer.test()
+    else:
+        pass
+
+
 
     #load model if exists
-    model.load(sess)
+    #model.load(sess)
     # here you train your model
-    trainer.train()
+    
 
 
 if __name__ == '__main__':

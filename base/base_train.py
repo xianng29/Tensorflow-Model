@@ -1,4 +1,5 @@
 import tensorflow as tf
+import numpy as np
 
 
 class BaseTrain:
@@ -8,13 +9,36 @@ class BaseTrain:
         self.config = config
         self.sess = sess
         self.data = data
-        self.init = tf.group(tf.global_variables_initializer(), tf.local_variables_initializer())
+        self.init = tf.group(tf.global_variables_initializer(),
+                             tf.local_variables_initializer())
         self.sess.run(self.init)
 
     def train(self):
-        for cur_epoch in range(self.model.cur_epoch_tensor.eval(self.sess), self.config.num_epochs + 1, 1):
-            self.train_epoch()
-            self.sess.run(self.model.increment_cur_epoch_tensor)
+        try:
+            for cur_epoch in range(self.model.cur_epoch_tensor.eval(self.sess), self.config.num_epochs + 1, 1):
+                self.train_epoch()
+                self.sess.run(self.model.increment_cur_epoch_tensor)
+        except tf.errors.OutOfRangeError:
+            tf.logging.info('Finished experiment.')
+
+    def test(self):
+        try:
+            losses = []
+            accs = []
+            while True:
+                loss, acc = self.train_step()
+                losses.append(loss)
+                accs.append(acc)
+        except tf.errors.OutOfRangeError:
+            tf.logging.info('Finished experiment.')
+            loss = np.mean(losses)
+            acc = np.mean(accs)
+            summaries_dict = {
+                'loss': loss,
+                'acc': acc,
+                'batchs': len(accs)
+            }
+            print(summaries_dict)
 
     def train_epoch(self):
         """
