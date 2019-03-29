@@ -26,7 +26,7 @@ class BaseTrain:
             losses = []
             accs = []
             while True:
-                loss, acc = self.train_step()
+                loss, acc = self.test_step()
                 losses.append(loss)
                 accs.append(acc)
         except tf.errors.OutOfRangeError:
@@ -55,3 +55,8 @@ class BaseTrain:
         - return any metrics you need to summarize
         """
         raise NotImplementedError
+
+    def test_step(self):
+        
+        raise NotImplementedError
+

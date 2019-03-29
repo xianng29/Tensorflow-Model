@@ -40,7 +40,11 @@ class CNNTrainer(BaseTrain):
         _, loss, acc = self.sess.run([self.model.train_step, self.model.cross_entropy, self.model.accuracy],
                                      feed_dict=feed_dict)
         return loss, acc
-
+    def test_step(self):
+        feed_dict = {self.data.handle:self.training_handle}
+        loss, acc = self.sess.run([self.model.cross_entropy, self.model.accuracy],
+                                     feed_dict=feed_dict)
+        return loss, acc
 
 
 

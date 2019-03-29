@@ -1,19 +1,19 @@
 {
     "exp_name": "CNN",
-    "summary_name":"CNN_v2",
+    "summary_name":"CNN_v1",
     "num_epochs": 20,
     "num_iter_per_epoch": 100,
     "learning_rate": 0.1,
     "batch_size": 16,
     "max_to_keep": 5,
-    "input_shape": [50,62,1],
+    "input_shape": [62,100,1],
     "number_class": 4,
     "strides": 2,
     "padding": "SAME",
-    "filter_1": [4,4,1,32],
-    "filter_2": [4,4,32,64],
-    "fc_bias": 1024,
+    "filter_1": [4,4,1,16],
+    "filter_2": [4,4,16,32],
+    "fc_bias": 128,
     "dropout": 0.5,
-    "split":"test",
-    "data_dir":"/home/xianng/Documents/Xiaotian/data_v2"
+    "split": "test",
+    "data_dir": "/home/xianng/Documents/Xiaotian/data_v1"
   }

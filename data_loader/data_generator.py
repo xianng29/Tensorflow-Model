@@ -3,28 +3,35 @@ import numpy as np
 import os
 
 
-# class DataGenerator:
-#     def __init__(self, config):
-#         self.config = config
-#         # load data here
-#         ((train_data, train_labels), (eval_data, eval_labels)) = tf.keras.datasets.mnist.load_data()
-#         train_data = train_data/np.float32(255)
+class DataGenerator:
+    def __init__(self, config):
+        self.config = config
+        # load data here
+        ((train_data, train_labels), (eval_data, eval_labels)) = tf.keras.datasets.mnist.load_data()
+        train_data = train_data/np.float32(255)
 
+
+        if config.split == 'train':
+            self.train_data = train_data
+            self.train_labels = train_labels
+        else:
+            self.train_data = eval_data
+            self.train_labels = eval_labels
+            pass
         
-#         self.train_data = train_data
-#         self.train_labels = train_labels
-
-#     def next_batch(self, batch_size):
-#         idx = np.random.choice(len(self.train_labels), batch_size,replace=False)
-#         num = len(idx)
-
-#         select_x = np.reshape(self.train_data[idx],[num]+self.config.input_shape)
-
-#         select_y = self.train_labels[idx]       
         
-#         select_y = np.eye(self.config.number_class)[select_y]
-#         yield select_x, select_y.t
-#         #tf.contrib.data.batch_and_drop_remainder(128)
+
+    def next_batch(self, batch_size):
+        idx = np.random.choice(len(self.train_labels), batch_size,replace=False)
+        num = len(idx)
+
+        select_x = np.reshape(self.train_data[idx],[num]+self.config.input_shape)
+
+        select_y = self.train_labels[idx]       
+        
+        select_y = np.eye(self.config.number_class)[select_y]
+        yield select_x, select_y.t
+        #tf.contrib.data.batch_and_drop_remainder(128)
 
 class ReadTFRecords:
     def __init__(self, config):
@@ -74,8 +81,9 @@ class ReadTFRecords:
         de_image = tf.decode_raw(features['de_image'], tf.uint8)
         psd_image = tf.decode_raw(features['psd_image'], tf.uint8)
         label = tf.decode_raw(features['label'], tf.uint8)
+        label = tf.reshape(label,tf.stack([4]))
 
-        tensor_shape = tf.stack([50, 62, 1])
+        tensor_shape = tf.stack(self.config.input_shape)
 
         de_image = tf.reshape(de_image, tensor_shape)
         psd_image = tf.reshape(psd_image, tensor_shape)

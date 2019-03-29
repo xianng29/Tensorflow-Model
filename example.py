@@ -1,5 +1,6 @@
 import tensorflow as tf
 
+from data_loader.data_generator import DataGenerator
 from data_loader.data_generator import ReadTFRecords
 from models.example_model import ExampleModel
 from models.cnn_model import CNNModel
