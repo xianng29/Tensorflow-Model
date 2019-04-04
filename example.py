@@ -32,7 +32,8 @@ def main():
     
     sess = tf.Session()
     # create your data generator
-    data = ReadTFRecords(config)
+    # data = ReadTFRecords(config)
+    data = DataGenerator(config)
     # create tensorboard logger
     logger = Logger(sess, config)
 
