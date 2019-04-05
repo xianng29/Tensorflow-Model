@@ -9,6 +9,7 @@ class DataGenerator:
         # load data here
         ((train_data, train_labels), (eval_data, eval_labels)) = tf.keras.datasets.mnist.load_data()
         train_data = train_data/np.float32(255)
+        eval_data = eval_data/np.float32(255)
 
 
         if config.split == 'train':
@@ -48,6 +49,7 @@ class ReadTFRecords:
                     dataset2 = tf.data.TFRecordDataset(valid_path)
                     dataset = dataset.concatenate(dataset2)
                 dataset = dataset.shuffle(10000 + 3 * self.config.batch_size)
+                dataset = dataset.repeat(None)
             dataset = dataset.map(self._extract_features)
             dataset = dataset.map(self.normalize)
             dataset = dataset.apply(tf.contrib.data.batch_and_drop_remainder(self.config.batch_size))
@@ -56,7 +58,6 @@ class ReadTFRecords:
         self.iterator = tf.data.Iterator.from_string_handle(self.handle, dataset.output_types, dataset.output_shapes)   
         self.dataset_iterator = dataset.make_one_shot_iterator()
         self.next_batch = self.iterator.get_next()
-        self.training_handle = sess.run(self.dataset_iterator.string_handle())
         
     def _extract_features(self, example):
         if self.config.exp_name == 'CNN':
@@ -85,7 +86,6 @@ class ReadTFRecords:
         label = tf.decode_raw(features['label'], tf.uint8)
         label = tf.reshape(label,tf.stack([self.config.number_class]))
 
-        image = tf.reshape(image,[28,28])
         image = tf.cast(image, tf.float32)
         label = tf.cast(label, tf.float32)
 

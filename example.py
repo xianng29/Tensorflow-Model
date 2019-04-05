@@ -4,8 +4,7 @@ from data_loader.data_generator import DataGenerator
 from data_loader.data_generator import ReadTFRecords
 from models.example_model import ExampleModel
 from models.cnn_model import CNNModel
-from trainers.example_trainer import ExampleTrainer
-from trainers.cnn_trainer import CNNTrainer
+from base.base_train import Trainer
 from utils.config import process_config
 from utils.dirs import create_dirs
 from utils.logger import Logger
@@ -32,39 +31,31 @@ def main():
     
     sess = tf.Session()
     # create your data generator
-    # data = ReadTFRecords(config)
-    data = DataGenerator(config)
+    data = ReadTFRecords(config)
+    # data = DataGenerator(config)
     # create tensorboard logger
     logger = Logger(sess, config)
-
 
     # create an instance of the model you want
     # create trainer and pass all the previous components to it
 
     create_model = None
-    create_trainer = None
     if config.exp_name == 'CNN':
         create_model = CNNModel
-        create_trainer = CNNTrainer
     elif config.exp_name == 'Example':
         create_model = ExampleModel
-        create_trainer = ExampleTrainer
 
     model = create_model(config,data)
-    trainer = create_trainer(sess, model, data, config, logger)
+    trainer = Trainer(sess, model, data, config, logger)
 
     if config.split == 'train':
         trainer.train()
     elif config.split == 'test':
+        model.load(sess)
         trainer.test()
     else:
         pass
 
-
-
-    #load model if exists
-    #model.load(sess)
-    # here you train your model
     
 
 

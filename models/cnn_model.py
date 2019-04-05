@@ -6,16 +6,16 @@ import numpy as np
 class CNNModel(BaseModel):
     def __init__(self, config, data):
         super(CNNModel, self).__init__(config)
-        self.build_model()
+        self.build_model(data)
         self.init_saver()
 
-    def build_model(self):
+    def build_model(self,data):
         # here you build the tensorflow graph of any model you want and also define the loss.
-        self.is_training = tf.placeholder(tf.bool)
+        #self.is_training = tf.placeholder(tf.bool)
 
-        self.x = tf.placeholder(tf.float32, shape=[self.config.batch_size]+self.config.input_shape)
-        self.y = tf.placeholder(tf.float32, shape=[self.config.batch_size]+[self.config.number_class])
-        # self.x ,self.y = data.next_batch
+        # self.x = tf.placeholder(tf.float32, shape=[None]+self.config.input_shape)
+        # self.y = tf.placeholder(tf.float32, shape=[None]+[self.config.number_class])
+        self.x ,self.y = data.next_batch
 
         strides = [1,self.config.strides,self.config.strides,1]
         padding = self.config.padding
@@ -69,7 +69,3 @@ class CNNModel(BaseModel):
                                                                                          global_step=self.global_step_tensor)
             correct_prediction = tf.equal(tf.argmax(out, 1), tf.argmax(self.y, 1))
             self.accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
-
-    def init_saver(self):
-        # here you initialize the tensorflow saver that will be used in saving the checkpoints.
-        self.saver = tf.train.Saver(max_to_keep=self.config.max_to_keep)

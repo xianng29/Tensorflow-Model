@@ -1,8 +1,10 @@
 import tensorflow as tf
 import numpy as np
+import data_loader.data_generator as data_generator
+from tqdm import tqdm
 
 
-class BaseTrain:
+class Trainer:
     def __init__(self, sess, model, data, config, logger):
         self.model = model
         self.logger = logger
@@ -12,6 +14,10 @@ class BaseTrain:
         self.init = tf.group(tf.global_variables_initializer(),
                              tf.local_variables_initializer())
         self.sess.run(self.init)
+        if isinstance(data, data_generator.ReadTFRecords):
+            self.handle = sess.run(data.dataset_iterator.string_handle())
+
+
 
     def train(self):
         try:
@@ -39,24 +45,40 @@ class BaseTrain:
                 'batchs': len(accs)
             }
             print(summaries_dict)
+            #summarize(self, step, summarizer="train", scope="", summaries_dict=None)
+            # self.logger.summarize(1,summarizer='test',summaries_dict=summaries_dict)
+            # self.model.save(self.sess)
 
     def train_epoch(self):
-        """
-        implement the logic of epoch:
-        -loop over the number of iterations in the config and call the train step
-        -add any summaries you want using the summary
-        """
-        raise NotImplementedError
+        loop = tqdm(range(self.config.num_iter_per_epoch))
+        losses = []
+        accs = []
+        for _ in loop:
+            loss, acc = self.train_step()
+            losses.append(loss)
+            accs.append(acc)
+        loss = np.mean(losses)
+        acc = np.mean(accs)
+
+        cur_it = self.model.global_step_tensor.eval(self.sess)
+        summaries_dict = {
+            'loss': loss,
+            'acc': acc,
+        }
+        print('epoch: ',cur_it,' ',summaries_dict)
+        self.logger.summarize(cur_it, summaries_dict=summaries_dict)
+        self.model.save(self.sess)
 
     def train_step(self):
-        """
-        implement the logic of the train step
-        - run the tensorflow session
-        - return any metrics you need to summarize
-        """
-        raise NotImplementedError
 
-    def test_step(self):
+        feed_dict = {self.data.handle:self.handle}                
+        _, loss, acc = self.sess.run([self.model.train_step, self.model.cross_entropy, self.model.accuracy],
+                                     feed_dict=feed_dict)
+        return loss, acc
         
-        raise NotImplementedError
+    def test_step(self):
+        feed_dict = {self.data.handle:self.handle}
+        loss, acc = self.sess.run([self.model.cross_entropy, self.model.accuracy],
+                                     feed_dict=feed_dict)
+        return loss, acc
 
